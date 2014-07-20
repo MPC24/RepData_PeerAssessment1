@@ -26,7 +26,8 @@ amdn <- na.omit(amd)
 library(ggplot2)
 library(plyr)
 
-ggplot(data = amdn, aes(x = date, y = steps)) + geom_histogram(fill = "red", stat = "identity") + theme(axis.text.x = element_text(angle = 90)) + xlab("Date") + ylab("Steps") + labs(title = "Steps per Day") + theme(plot.title = element_text(size = rel(2), vjust = 2)) + theme(axis.text = element_text(size = rel(.75))) + theme(axis.title = element_text(size = rel(1.5)))
+steps1 <- ggplot(data = amdn, aes(x = date, y = steps)) + geom_histogram(fill = "red", stat = "identity") + theme(axis.text.x = element_text(angle = 90)) + xlab("Date") + ylab("Steps") + labs(title = "Steps per Day") + theme(plot.title = element_text(size = rel(2), vjust = 2)) + theme(axis.text = element_text(size = rel(.75))) + theme(axis.title = element_text(size = rel(1.5)))
+steps1
 ```
 
 ![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
@@ -103,7 +104,8 @@ amdnm
 ```r
 ame <- ddply(amdn,~interval, summarize, mean=mean(steps))
 
-ggplot(data = ame, aes(x = interval, y = mean)) + geom_line(size = 1, colour = "blue") + xlab("Interval(24hrs/5minutes)") + ylab("Average Steps") + labs(title = "Average Steps per Day for October and November") + theme(plot.title = element_text(size = rel(1.5), vjust = 2))+ theme(panel.background = element_rect(fill = "white", colour = "black"))
+avday <- ggplot(data = ame, aes(x = interval, y = mean)) + geom_line(size = 1, colour = "blue") + xlab("Interval(24hrs/5minutes)") + ylab("Average Steps") + labs(title = "Average Steps per Day for October and November") + theme(plot.title = element_text(size = rel(1.5), vjust = 2))+ theme(panel.background = element_rect(fill = "white", colour = "black"))
+avday
 ```
 
 ![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
@@ -143,7 +145,8 @@ for(i in 1:nrow(amd)){
     }
 }
 
-ggplot(data = amd, aes(x = date, y = steps_imp)) + geom_histogram(fill = "red", stat = "identity") + theme(axis.text.x = element_text(angle = 90)) + xlab("Date") + ylab("Steps") + labs(title = "Steps per Day") + theme(plot.title = element_text(size = rel(2), vjust = 2)) + theme(panel.background = element_rect(fill = "white", colour = "black")) + theme(axis.title=element_text(size=rel(1.5))) + theme(axis.text = element_text(size = rel(.75)))
+steps2 <- ggplot(data = amd, aes(x = date, y = steps_imp)) + geom_histogram(fill = "red", stat = "identity") + theme(axis.text.x = element_text(angle = 90)) + xlab("Date") + ylab("Steps") + labs(title = "Steps per Day") + theme(plot.title = element_text(size = rel(2), vjust = 2)) + theme(panel.background = element_rect(fill = "white", colour = "black")) + theme(axis.title=element_text(size=rel(1.5))) + theme(axis.text = element_text(size = rel(.75)))
+steps2
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
@@ -240,7 +243,8 @@ for(i in 1:nrow(amd)){
 
 amem <- ddply(amd, .(interval, day), summarize, mean=mean(steps_imp))
 
-ggplot(data = amem, aes(x = interval, y = mean)) + geom_line(size = 1, colour = "blue") + xlab("Interval(24hrs/5minutes)") + ylab("Average Steps") + labs(title = "Average Steps per Day for October and November") + theme(plot.title = element_text(size = rel(1.5), vjust = 2))+ theme(panel.background = element_rect(fill = "white", colour = "black")) + facet_grid(day ~ .)
+days <- ggplot(data = amem, aes(x = interval, y = mean)) + geom_line(size = 1, colour = "blue") + xlab("Interval(24hrs/5minutes)") + ylab("Average Steps") + labs(title = "Average Steps per Day for October and November") + theme(plot.title = element_text(size = rel(1.5), vjust = 2))+ theme(panel.background = element_rect(fill = "white", colour = "black")) + facet_grid(day ~ .)
+days
 ```
 
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
