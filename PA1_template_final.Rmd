@@ -1,0 +1,99 @@
+---
+title: "Activity Monitoring - Steps"
+author: "Michael Conway"
+date: "Friday, July 18, 2014"
+output: html_document
+---
+###Loading and preprocessing the data
+
+Imported data via 'read.csv' while formatting the variables: 'steps' = numeric, date = as.Date, and 'interval' = integer. Second step was to create an object omitting NAs. Further formatting was performed at different stages of assignment based on the requirements of the task.
+
+```{r}
+amd <- read.csv(file = "amd.csv", header = TRUE, colClasses = c("numeric", as.Date("date",format = "%m/%d/%Y"), "integer" ))
+amdn <- na.omit(amd)
+```
+
+###Mean steps per day
+
+* Histogram
+* Mean and Median
+    + Summarize
+    + Calculate
+
+```{r}
+library(ggplot2)
+library(plyr)
+
+steps1 <- ggplot(data = amdn, aes(x = date, y = steps)) + geom_histogram(fill = "red", stat = "identity") + theme(axis.text.x = element_text(angle = 90)) + xlab("Date") + ylab("Steps") + labs(title = "Steps per Day") + theme(plot.title = element_text(size = rel(2), vjust = 2)) + theme(axis.text = element_text(size = rel(.75))) + theme(axis.title = element_text(size = rel(1.5)))
+steps1
+
+amdnm <- ddply(amdn,~date, summarize, mean=mean(steps),median=median(steps))
+amdnm
+```
+
+###Average Daily Activity
+
+* Subset by interval and caculate mean
+    + Plot mean activity by interval
+    + Identify max mean interval 
+
+```{r}
+
+ame <- ddply(amdn,~interval, summarize, mean=mean(steps))
+
+avday <- ggplot(data = ame, aes(x = interval, y = mean)) + geom_line(size = 1, colour = "blue") + xlab("Interval(24hrs/5minutes)") + ylab("Average Steps") + labs(title = "Average Steps per Day for October and November") + theme(plot.title = element_text(size = rel(1.5), vjust = 2))+ theme(panel.background = element_rect(fill = "white", colour = "black"))
+avday
+subset(ame, mean == max(ame$mean))
+```
+
+###Imputing Missing Values
+
+* Sum NA's
+* NA replacement strategy: use inerval means from 'ame' object to replace NA's in corresponding interval with mean
+    + Create column equalling 'steps' then input inverval means into NA's with for loop
+  
+* Plot histogram
+* Calculate mean and median of new data set with replaced NA's
+
+```{r}
+sum(is.na(amd$steps))
+
+amd$steps_imp <- amd$steps
+for(i in 1:nrow(amd)){
+    if(is.na(amd$steps[i])){
+        amd$steps_imp[i] <- ame[ame$interval==amd$interval[i], 'mean']
+    }
+}
+
+steps2 <- ggplot(data = amd, aes(x = date, y = steps_imp)) + geom_histogram(fill = "red", stat = "identity") + theme(axis.text.x = element_text(angle = 90)) + xlab("Date") + ylab("Steps") + labs(title = "Steps per Day") + theme(plot.title = element_text(size = rel(2), vjust = 2)) + theme(panel.background = element_rect(fill = "white", colour = "black")) + theme(axis.title=element_text(size=rel(1.5))) + theme(axis.text = element_text(size = rel(.75)))
+steps2
+
+amedays <- ddply(amd,~date, summarize, mean=mean(steps_imp),median=median(steps_imp))
+amedays
+```
+
+*Summary Analysis of impact of imputing inverval means for NA's
+    + Means did not change
+    + Where days with all NA's replaced with mean intervals, median was 34.11; all other medians per day in both instances of monitoring where zero
+    + NA replacement improves graphic appearance without skewing data summary
+    
+###Weekdays and Weekends
+
+* Create factor with for loop
+* Subset by factor and calculate mean
+* Create panel plot seperated by factors weekday and weekend
+    
+```{r}
+amd$dates <- as.Date(amd$date)
+for(i in 1:nrow(amd)){
+    if(weekdays(amd$dates[i]) %in% c("Sunday", "Saturday")) {
+        amd$day[i] <- "weekend"
+    } else amd$day[i] <- "weekday"
+}
+
+amem <- ddply(amd, .(interval, day), summarize, mean=mean(steps_imp))
+
+days <- ggplot(data = amem, aes(x = interval, y = mean)) + geom_line(size = 1, colour = "blue") + xlab("Interval(24hrs/5minutes)") + ylab("Average Steps") + labs(title = "Average Steps per Day for October and November") + theme(plot.title = element_text(size = rel(1.5), vjust = 2))+ theme(panel.background = element_rect(fill = "white", colour = "black")) + facet_grid(day ~ .)
+days
+
+```
